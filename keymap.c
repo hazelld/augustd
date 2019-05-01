@@ -20,6 +20,11 @@
 #define KC_PC_COPY LCTL(KC_C)
 #define KC_PC_PASTE LCTL(KC_V)
 
+/* Timers for super alt-tab, adopted from qmk docs */
+bool is_alt_tab_active = false;
+uint16_t alt_tab_timer = 0;
+
+/* Keycodes */
 enum custom_keycodes {
     PLACEHOLDER = SAFE_RANGE, // can always be here
     EPRM,
@@ -27,24 +32,32 @@ enum custom_keycodes {
     
     /* Have one button press that cycles through all the layers */
     CYCLE_OS_LAYERS,
+
+    /* Super alt tab for one button alt-tab */
+    SUPER_ALT_TAB,
     
     /* Custom Vim Keycodes */
     VIM_ESCAPE_HATCH,
     VIM_WINDOW_MOVE_LEFT,
     VIM_WINDOW_MOVE_RIGHT,
+    VIM_WINDOW_MOVE_UP,
+    VIM_WINDOW_MOVE_DOWN,
+    VIM_WINDOW_CREATE,
 };
 
 /* Layer names easily defined */
 #define __BASE 0
 #define __BASE_SHIFT 1
+#define __QWERTY 2
 
 /* OS Specific Layers + the default*/
-#define __LINUX 2
-#define __MAC 3
+#define __LINUX 3
+#define __MAC 4
 #define __DEFAULT_OS __LINUX
+#define OS_XOR 0x18 /* bits for 3 & 4 set */ 
     
 /* Application Specific Layers */
-#define __VIM 4
+#define __VIM 5
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -54,10 +67,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_DLR,KC_AMPR,KC_LBRACKET,KC_LCBR,KC_RCBR,KC_LPRN,KC_EQUAL, \
             KC_TAB,KC_SCOLON,KC_COMMA,KC_DOT,KC_P,KC_Y,KC_BSLASH, \
             KC_ESCAPE,KC_A,KC_O,KC_E,KC_U,KC_I, \
-            MO(__BASE_SHIFT),KC_QUOTE,KC_Q,KC_J,KC_K,KC_X,KC_HYPR, \
+            MO(__BASE_SHIFT),KC_QUOTE,KC_Q,KC_J,KC_K,KC_X,SUPER_ALT_TAB, \
             KC_LCTRL,KC_TRANSPARENT,LALT(KC_NO),KC_LEFT,KC_RIGHT,
             /* Left Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_SPACE,KC_ENTER,TG(__VIM), \
+            KC_TRANSPARENT,KC_TRANSPARENT,KC_F11,KC_SPACE,KC_ENTER,TG(__VIM), \
             
             /* Right Hand */
             KC_ASTR,KC_RPRN,KC_PLUS,KC_RBRACKET,KC_EXLM,KC_HASH,KC_BSPACE, \
@@ -66,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_MEH,KC_B,KC_M,KC_W,KC_V,KC_Z,KC_RSHIFT, \
             KC_UP,KC_DOWN,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT, \
             /* Right Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,CYCLE_OS_LAYERS,KC_TAB,KC_ENTER \
+            KC_TRANSPARENT,KC_TRANSPARENT,DF(__QWERTY),CYCLE_OS_LAYERS,KC_TAB,KC_ENTER \
             ),
 
     /* Base layout when shift is pressed */
@@ -88,6 +101,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,
             /* Right Thumb */
             KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT),
+    
+    /* QWERTY Mode */
+    [__QWERTY] = LAYOUT_ergodox(\
+            /* Left Hand */
+            KC_EQUAL,KC_1,KC_2,KC_3,KC_4,KC_5,KC_LEFT,KC_DELETE,
+            KC_Q,KC_W,KC_E,KC_R,KC_T,_______,
+            KC_BSPACE,KC_A,KC_S,KC_D,KC_F,KC_G,
+            KC_LSHIFT,LCTL_T(KC_Z),KC_X,KC_C,KC_V,KC_B,KC_HYPR,
+            _______,KC_QUOTE,LALT(KC_LSHIFT),KC_LEFT,KC_RIGHT,
+            /* Left Thumb */ 
+            LALT_T(KC_APPLICATION),KC_LGUI,KC_F11,KC_SPACE,KC_BSPACE,KC_END,
+           
+            /* Right Hand */
+            KC_RIGHT,KC_6,KC_7,KC_8,KC_9,KC_0,KC_BSPACE,
+            _______,KC_Y,KC_U,KC_I,KC_O,KC_P,KC_BSLASH,
+            KC_H,KC_J,KC_K,KC_L,KC_SCOLON,_______,
+            KC_MEH,KC_N,KC_M,KC_COMMA,KC_DOT,RCTL_T(KC_SLASH),KC_RSHIFT,
+            KC_UP,KC_DOWN,KC_LBRACKET,KC_RBRACKET,_______,
+            KC_LALT,LCTL_T(KC_ESCAPE),DF(__BASE),CYCLE_OS_LAYERS,KC_TAB,KC_ENTER),
+
  
     /* Linux specific shortcuts */
     [__LINUX] = LAYOUT_ergodox( \
@@ -137,7 +170,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             _______, _______, _______, _______, _______, _______, _______,  
             _______, _______, _______, _______, _______, _______, _______, 
             _______, _______, _______, _______, _______, _______, 
-            _______, _______, _______, _______, _______, _______, _______, 
+            _______, _______, _______, _______, _______, _______, SUPER_ALT_TAB, 
             _______, _______, _______, VIM_WINDOW_MOVE_LEFT, VIM_WINDOW_MOVE_RIGHT, 
             /* Left Thumb */
             _______, _______, _______, _______, VIM_ESCAPE_HATCH, _______, 
@@ -146,8 +179,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             _______, _______, _______, _______, _______, _______, _______,  
             _______, _______, _______, _______, _______, _______, _______, 
             _______, _______, _______, _______, _______, _______, 
-            _______, _______, _______, _______, _______, _______, _______, 
-            _______, _______, _______, _______, _______, 
+            VIM_WINDOW_CREATE, _______, _______, _______, _______, _______, _______, 
+            VIM_WINDOW_MOVE_UP, VIM_WINDOW_MOVE_DOWN, _______, _______, _______, 
             /* Right Thumb */
             _______, _______, _______, _______, _______, _______ \
     ),
@@ -166,20 +199,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         
         case CYCLE_OS_LAYERS:
             if (record->event.pressed) {
-                if (IS_LAYER_ON(__LINUX)) {
-                    layer_off(__LINUX);
-                    layer_on(__MAC);
-                    break;
-                }
-
-                if (IS_LAYER_ON(__MAC)) {
-                    layer_off(__MAC);
-                    layer_on(__LINUX);
-                }
+                layer_xor(OS_XOR);
             }
             return false;
             break;
+        
+        /* Alt-Tab Features */
+        case SUPER_ALT_TAB:
+            if (record->event.pressed) {
+                if (!is_alt_tab_active) {
+                    is_alt_tab_active = true;
+                    register_code(KC_LALT);
+                }
+                alt_tab_timer = timer_read();
+                register_code(KC_TAB);
+            } else {
+                unregister_code(KC_TAB);
+            }
+            return true;
 
+        /* VIM features */
         case VIM_ESCAPE_HATCH:
             if (record->event.pressed) {
                 vim_escape_hatch();
@@ -188,11 +227,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
 
         case VIM_WINDOW_MOVE_LEFT:
-            if (record->event.pressed) { vim_window_move_left(); }
+            if (record->event.pressed) { CREATE_MOVE(left); }
             return false;
 
         case VIM_WINDOW_MOVE_RIGHT:
-            if (record->event.pressed) { vim_window_move_right(); }
+            if (record->event.pressed) { CREATE_MOVE(right); }
+            return false;
+
+        case VIM_WINDOW_MOVE_UP:
+            if (record->event.pressed) { CREATE_MOVE(up); }
+            return false;
+
+        case VIM_WINDOW_MOVE_DOWN:
+            if (record->event.pressed) { CREATE_MOVE(down); }
+            return false;
+
+        case VIM_WINDOW_CREATE:
+            if (record->event.pressed) {
+                vim_window_create(VIM_CREATE_ON);
+            } else {
+                vim_window_create(VIM_CREATE_OFF);
+            }
             return false;
     }
     return true;
@@ -206,41 +261,36 @@ void matrix_init_user(void) {
 uint32_t layer_state_set_user(uint32_t state) {
 
     uint8_t layer = biton32(state);
+    ergodox_led_all_off();
 
-    ergodox_board_led_off();
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
+
+    /* If highest activated layer is a default, shut off all lights or turn them all on */
     switch (layer) {
-        case 1:
-            ergodox_right_led_1_on();
-            break;
-        case 2:
-            ergodox_right_led_2_on();
-            break;
-        case 3:
-            ergodox_right_led_3_on();
-            break;
-        case 4:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            break;
-        case 5:
-            ergodox_right_led_1_on();
-            ergodox_right_led_3_on();
-            break;
-        case 6:
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        case 7:
-            ergodox_right_led_1_on();
-            ergodox_right_led_2_on();
-            ergodox_right_led_3_on();
-            break;
-        default:
-            break;
+        case __BASE:
+        case __BASE_SHIFT:
+        case __QWERTY:
+            return state;
     }
-    return state;
+    
+    /* NOTE: Can't use layer_state_is, or IS_LAYER_ON because the layer_state
+     * variable isn't actually updated until after this function is finished,
+     * so have to use the layer_state_cmp directly */
+    if (layer_state_cmp(state, __VIM))
+        ergodox_right_led_3_on();
 
-};
+    if (layer_state_cmp(state, __MAC))
+        ergodox_right_led_1_on();
+
+    if (layer_state_cmp(state, __LINUX))
+        ergodox_right_led_2_on();
+    return state;
+}
+
+void matrix_scan_user(void) {
+    if (is_alt_tab_active) {
+        if (timer_elapsed(alt_tab_timer) > 1000) {
+            unregister_code(KC_LALT);
+            is_alt_tab_active = false;
+        }
+    } 
+}

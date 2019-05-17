@@ -67,16 +67,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_DLR,KC_AMPR,KC_LBRACKET,KC_LCBR,KC_RCBR,KC_LPRN,KC_EQUAL, \
             KC_TAB,KC_SCOLON,KC_COMMA,KC_DOT,KC_P,KC_Y,KC_BSLASH, \
             KC_ESCAPE,KC_A,KC_O,KC_E,KC_U,KC_I, \
-            MO(__BASE_SHIFT),KC_QUOTE,KC_Q,KC_J,KC_K,KC_X,SUPER_ALT_TAB, \
-            KC_LCTRL,KC_TRANSPARENT,LALT(KC_NO),KC_LEFT,KC_RIGHT,
+            MO(__BASE_SHIFT),KC_QUOTE,KC_Q,KC_J,KC_K,KC_X,KC_LGUI, \
+            KC_LCTRL,KC_TRANSPARENT,KC_TRANSPARENT,KC_LEFT,KC_RIGHT,
             /* Left Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_F11,KC_SPACE,KC_ENTER,TG(__VIM), \
+            KC_TRANSPARENT,KC_TRANSPARENT,KC_F11,KC_SPACE,SUPER_ALT_TAB,TG(__VIM), \
             
             /* Right Hand */
             KC_ASTR,KC_RPRN,KC_PLUS,KC_RBRACKET,KC_EXLM,KC_HASH,KC_BSPACE, \
             KC_AT,KC_F,KC_G,KC_C,KC_R,KC_L,KC_SLASH, \
             KC_D,KC_H,KC_T,KC_N,KC_S,KC_MINUS, \
-            KC_MEH,KC_B,KC_M,KC_W,KC_V,KC_Z,KC_RSHIFT, \
+            KC_LGUI,KC_B,KC_M,KC_W,KC_V,KC_Z,KC_RSHIFT, \
             KC_UP,KC_DOWN,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT, \
             /* Right Thumb */
             KC_TRANSPARENT,KC_TRANSPARENT,DF(__QWERTY),CYCLE_OS_LAYERS,KC_TAB,KC_ENTER \
@@ -85,8 +85,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base layout when shift is pressed */
     [__BASE_SHIFT] = LAYOUT_ergodox(\
             /* Left Hand */ 
-            KC_TILD,KC_PERC,KC_7,KC_5,KC_3,KC_1,KC_9,
-            KC_TRANSPARENT,KC_COLN,KC_LABK,KC_RABK,LSFT(KC_P),LSFT(KC_Y),LSFT(KC_BSLASH),
+            KC_TILD,KC_7,KC_5,KC_3,KC_1,KC_9,KC_PERC,
+            LSFT(KC_TAB),KC_COLN,KC_LABK,KC_RABK,LSFT(KC_P),LSFT(KC_Y),LSFT(KC_BSLASH),
             KC_TRANSPARENT,LSFT(KC_A),LSFT(KC_O),LSFT(KC_E),LSFT(KC_U),LSFT(KC_I),
             KC_TRANSPARENT,KC_DQUO,LSFT(KC_Q),LSFT(KC_J),LSFT(KC_K),LSFT(KC_X),KC_TRANSPARENT,
             KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,
@@ -94,7 +94,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,
             
             /* Right Hand */
-            KC_0,KC_2,KC_4,KC_6,KC_8,KC_GRAVE,KC_TRANSPARENT,
+            KC_GRAVE, KC_0,KC_2,KC_4,KC_6,KC_8,KC_TRANSPARENT,
             KC_CIRC,LSFT(KC_F),LSFT(KC_G),LSFT(KC_C),LSFT(KC_R),LSFT(KC_L),KC_QUES,
             LSFT(KC_D),LSFT(KC_H),LSFT(KC_T),LSFT(KC_N),LSFT(KC_S),KC_UNDS,
             KC_TRANSPARENT,LSFT(KC_B),LSFT(KC_M),LSFT(KC_W),LSFT(KC_V),LSFT(KC_Z),KC_TRANSPARENT,
@@ -119,6 +119,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_H,KC_J,KC_K,KC_L,KC_SCOLON,_______,
             KC_MEH,KC_N,KC_M,KC_COMMA,KC_DOT,RCTL_T(KC_SLASH),KC_RSHIFT,
             KC_UP,KC_DOWN,KC_LBRACKET,KC_RBRACKET,_______,
+            /* Right thumb */
             KC_LALT,LCTL_T(KC_ESCAPE),DF(__BASE),CYCLE_OS_LAYERS,KC_TAB,KC_ENTER),
 
  
@@ -173,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             _______, _______, _______, _______, _______, _______, SUPER_ALT_TAB, 
             _______, _______, _______, VIM_WINDOW_MOVE_LEFT, VIM_WINDOW_MOVE_RIGHT, 
             /* Left Thumb */
-            _______, _______, _______, _______, VIM_ESCAPE_HATCH, _______, 
+            _______, _______, _______, _______, _______, _______, 
 
             /* Right Hand */ 
             _______, _______, _______, _______, _______, _______, _______,  
@@ -209,7 +210,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 if (!is_alt_tab_active) {
                     is_alt_tab_active = true;
-                    register_code(KC_LALT);
+
+                    if (IS_LAYER_ON(__MAC)) 
+                        register_code(KC_LGUI);
+                    else
+                        register_code(KC_LALT);
                 }
                 alt_tab_timer = timer_read();
                 register_code(KC_TAB);

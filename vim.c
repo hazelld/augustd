@@ -10,13 +10,15 @@
  *
  * The VIM layer will also be turned off when escaping out, and will be turned back
  * on when coming back in.
+ *
+ * By default this layer is off, but may be turned on by defining VIM_ESCAPE_HATCH_ON.
  */
 
-/* Assume the keyboard will be plugged in when not currently in VIM */
 #define STATE_NOT_VIM 0
 #define STATE_VIM 1
-static char app_state = STATE_NOT_VIM;
+static char app_state = STATE_VIM;
 
+#ifdef VIM_ESCAPE_HATCH_ON
 static inline void vim_escape_hatch(void) {
     if (app_state == STATE_VIM) {
         SEND_STRING(SS_TAP(X_ESCAPE));
@@ -26,6 +28,14 @@ static inline void vim_escape_hatch(void) {
         SEND_STRING("fg\n");
         app_state = STATE_VIM;
     }
+}
+#else
+static inline void vim_escape_hatch(void) {} 
+#endif
+
+/* Allow for togging of vim mode manually */
+static inline void toggle_vim_mode(void) {
+	app_state = (app_state == STATE_VIM) ? STATE_NOT_VIM : STATE_VIM;
 }
 
 /* Allow for conditional macros based on whether the keyboard thinks it is in VIM or
@@ -104,18 +114,26 @@ static inline void vim_window_create(uint8_t state) {
 }
 
 static inline void vim_window_create_up(void) {
-
+	SEND_STRING(SS_TAP(X_ESCAPE));
+	SEND_STRING(":leftabove new");
+    SEND_STRING(SS_TAP(X_ENTER));
 }
 
 static inline void vim_window_create_down(void) {
-
+	SEND_STRING(SS_TAP(X_ESCAPE));
+	SEND_STRING(":belowright new");
+    SEND_STRING(SS_TAP(X_ENTER));
 }
 
 static inline void vim_window_create_left(void) {
-
+	SEND_STRING(SS_TAP(X_ESCAPE));
+	SEND_STRING(":vert topleft new");
+    SEND_STRING(SS_TAP(X_ENTER));
 }
 
 static inline void vim_window_create_right(void) {
-
+	SEND_STRING(SS_TAP(X_ESCAPE));
+	SEND_STRING(":vert botright new");
+    SEND_STRING(SS_TAP(X_ENTER));
 }
 

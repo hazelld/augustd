@@ -3,4 +3,7 @@
 COMMAND_ENABLE = no
 MOUSEKEY_ENABLE = no
 RGBLIGHT_ENABLE = no
-# CONSOLE_ENABLE = yes
+CONSOLE_ENABLE = yes
+
+# Debounce settings
+DEBOUNCE_TYPE = sym_g

@@ -1,3 +1,4 @@
+#include <print.h>
 #include "ergodox_ez.h"
 #include "debug.h"
 #include "action_layer.h"
@@ -23,6 +24,7 @@
 /* Timers for super alt-tab, adopted from qmk docs */
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
+#define ALT_TAB_LENGTH 600
 
 /* Keycodes */
 enum custom_keycodes {
@@ -38,6 +40,7 @@ enum custom_keycodes {
     
     /* Custom Vim Keycodes */
     VIM_ESCAPE_HATCH,
+	VIM_TOGGLE,
     VIM_WINDOW_MOVE_LEFT,
     VIM_WINDOW_MOVE_RIGHT,
     VIM_WINDOW_MOVE_UP,
@@ -53,7 +56,7 @@ enum custom_keycodes {
 /* OS Specific Layers + the default*/
 #define __LINUX 3
 #define __MAC 4
-#define __DEFAULT_OS __LINUX
+#define __DEFAULT_OS __MAC
 #define OS_XOR 0x18 /* bits for 3 & 4 set */ 
     
 /* Application Specific Layers */
@@ -68,18 +71,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_TAB,KC_SCOLON,KC_COMMA,KC_DOT,KC_P,KC_Y,KC_BSLASH, \
             KC_ESCAPE,KC_A,KC_O,KC_E,KC_U,KC_I, \
             MO(__BASE_SHIFT),KC_QUOTE,KC_Q,KC_J,KC_K,KC_X,KC_LGUI, \
-            KC_LCTRL,KC_TRANSPARENT,KC_TRANSPARENT,KC_LEFT,KC_RIGHT,
+            KC_LCTRL,_______,_______,KC_LEFT,KC_RIGHT,
             /* Left Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_F11,KC_SPACE,SUPER_ALT_TAB,TG(__VIM), \
+            TG(__VIM),_______,KC_F11,KC_SPACE,LCTL(KC_B),SUPER_ALT_TAB, \
             
             /* Right Hand */
-            KC_ASTR,KC_RPRN,KC_PLUS,KC_RBRACKET,KC_EXLM,KC_HASH,KC_BSPACE, \
+            KC_HASH, KC_ASTR,KC_RPRN,KC_PLUS,KC_RBRACKET,KC_EXLM,KC_BSPACE, \
             KC_AT,KC_F,KC_G,KC_C,KC_R,KC_L,KC_SLASH, \
             KC_D,KC_H,KC_T,KC_N,KC_S,KC_MINUS, \
-            KC_LGUI,KC_B,KC_M,KC_W,KC_V,KC_Z,KC_RSHIFT, \
-            KC_UP,KC_DOWN,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT, \
+            LGUI(KC_GRAVE),KC_B,KC_M,KC_W,KC_V,KC_Z,KC_RSHIFT, \
+            KC_UP,KC_DOWN,_______,_______,_______, \
             /* Right Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,DF(__QWERTY),CYCLE_OS_LAYERS,KC_TAB,KC_ENTER \
+            _______,_______,DF(__QWERTY),CYCLE_OS_LAYERS,KC_TAB,KC_ENTER \
             ),
 
     /* Base layout when shift is pressed */
@@ -87,32 +90,32 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             /* Left Hand */ 
             KC_TILD,KC_7,KC_5,KC_3,KC_1,KC_9,KC_PERC,
             LSFT(KC_TAB),KC_COLN,KC_LABK,KC_RABK,LSFT(KC_P),LSFT(KC_Y),LSFT(KC_BSLASH),
-            KC_TRANSPARENT,LSFT(KC_A),LSFT(KC_O),LSFT(KC_E),LSFT(KC_U),LSFT(KC_I),
-            KC_TRANSPARENT,KC_DQUO,LSFT(KC_Q),LSFT(KC_J),LSFT(KC_K),LSFT(KC_X),KC_TRANSPARENT,
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,
+            _______,LSFT(KC_A),LSFT(KC_O),LSFT(KC_E),LSFT(KC_U),LSFT(KC_I),
+            _______,KC_DQUO,LSFT(KC_Q),LSFT(KC_J),LSFT(KC_K),LSFT(KC_X),_______,
+            _______,_______,_______,_______,_______,
             /* Left Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,
+            _______,_______,_______,_______,_______,_______,
             
             /* Right Hand */
-            KC_GRAVE, KC_0,KC_2,KC_4,KC_6,KC_8,KC_TRANSPARENT,
+            KC_GRAVE, KC_0,KC_2,KC_4,KC_6,KC_8,_______,
             KC_CIRC,LSFT(KC_F),LSFT(KC_G),LSFT(KC_C),LSFT(KC_R),LSFT(KC_L),KC_QUES,
             LSFT(KC_D),LSFT(KC_H),LSFT(KC_T),LSFT(KC_N),LSFT(KC_S),KC_UNDS,
-            KC_TRANSPARENT,LSFT(KC_B),LSFT(KC_M),LSFT(KC_W),LSFT(KC_V),LSFT(KC_Z),KC_TRANSPARENT,
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,
+            _______,LSFT(KC_B),LSFT(KC_M),LSFT(KC_W),LSFT(KC_V),LSFT(KC_Z),_______,
+            _______,_______,_______,_______,_______,
             /* Right Thumb */
-            KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT,KC_TRANSPARENT),
+            _______,_______,_______,_______,LSFT(KC_TAB),LSFT(KC_ENTER)),
     
     /* QWERTY Mode */
     [__QWERTY] = LAYOUT_ergodox(\
             /* Left Hand */
-            KC_EQUAL,KC_1,KC_2,KC_3,KC_4,KC_5,KC_LEFT,KC_DELETE,
-            KC_Q,KC_W,KC_E,KC_R,KC_T,_______,
+            KC_EQUAL,KC_1,KC_2,KC_3,KC_4,KC_5,KC_DELETE,
+            KC_TAB, KC_Q,KC_W,KC_E,KC_R,KC_T,_______,
             KC_BSPACE,KC_A,KC_S,KC_D,KC_F,KC_G,
             KC_LSHIFT,LCTL_T(KC_Z),KC_X,KC_C,KC_V,KC_B,KC_HYPR,
             _______,KC_QUOTE,LALT(KC_LSHIFT),KC_LEFT,KC_RIGHT,
             /* Left Thumb */ 
             LALT_T(KC_APPLICATION),KC_LGUI,KC_F11,KC_SPACE,KC_BSPACE,KC_END,
-           
+             
             /* Right Hand */
             KC_RIGHT,KC_6,KC_7,KC_8,KC_9,KC_0,KC_BSPACE,
             _______,KC_Y,KC_U,KC_I,KC_O,KC_P,KC_BSLASH,
@@ -171,8 +174,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             _______, _______, _______, _______, _______, _______, _______,  
             _______, _______, _______, _______, _______, _______, _______, 
             _______, _______, _______, _______, _______, _______, 
-            _______, _______, _______, _______, _______, _______, SUPER_ALT_TAB, 
-            _______, _______, _______, VIM_WINDOW_MOVE_LEFT, VIM_WINDOW_MOVE_RIGHT, 
+            _______, _______, _______, _______, _______, _______, _______, 
+            _______, VIM_TOGGLE, _______, VIM_WINDOW_MOVE_LEFT, VIM_WINDOW_MOVE_RIGHT, 
             /* Left Thumb */
             _______, _______, _______, _______, _______, _______, 
 
@@ -180,10 +183,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             _______, _______, _______, _______, _______, _______, _______,  
             _______, _______, _______, _______, _______, _______, _______, 
             _______, _______, _______, _______, _______, _______, 
-            VIM_WINDOW_CREATE, _______, _______, _______, _______, _______, _______, 
-            VIM_WINDOW_MOVE_UP, VIM_WINDOW_MOVE_DOWN, _______, _______, _______, 
+            _______, _______, _______, _______, _______, _______, _______, 
+            VIM_WINDOW_MOVE_UP, VIM_WINDOW_MOVE_DOWN, _______, VIM_WINDOW_CREATE, _______, 
             /* Right Thumb */
-            _______, _______, _______, _______, _______, _______ \
+            _______, _______, _______, _______, VIM_ESCAPE_HATCH, _______ \
     ),
 
 };
@@ -254,6 +257,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 vim_window_create(VIM_CREATE_OFF);
             }
             return false;
+		case VIM_TOGGLE:
+            if (record->event.pressed) { toggle_vim_mode(); }
+			return false;
     }
     return true;
 }
@@ -266,6 +272,7 @@ void matrix_init_user(void) {
 uint32_t layer_state_set_user(uint32_t state) {
 
     uint8_t layer = biton32(state);
+    uprintf("%d\n", layer);
     ergodox_led_all_off();
 
 
@@ -293,8 +300,11 @@ uint32_t layer_state_set_user(uint32_t state) {
 
 void matrix_scan_user(void) {
     if (is_alt_tab_active) {
-        if (timer_elapsed(alt_tab_timer) > 1000) {
-            unregister_code(KC_LALT);
+        if (timer_elapsed(alt_tab_timer) > ALT_TAB_LENGTH) {
+			if (IS_LAYER_ON(__MAC))
+				unregister_code(KC_LGUI);
+			else
+				unregister_code(KC_LALT);
             is_alt_tab_active = false;
         }
     } 

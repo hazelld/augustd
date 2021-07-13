@@ -33,6 +33,45 @@ static inline void vim_escape_hatch(void) {
 static inline void vim_escape_hatch(void) {} 
 #endif
 
+/**
+ Usage of the vim functionality, currently not using in keyboard for now
+
+        case VIM_ESCAPE_HATCH:
+            if (record->event.pressed) {
+                vim_escape_hatch();
+            }
+            return false;
+            break;
+
+        case VIM_WINDOW_MOVE_LEFT:
+            if (record->event.pressed) { CREATE_MOVE(left); }
+            return false;
+
+        case VIM_WINDOW_MOVE_RIGHT:
+            if (record->event.pressed) { CREATE_MOVE(right); }
+            return false;
+
+        case VIM_WINDOW_MOVE_UP:
+            if (record->event.pressed) { CREATE_MOVE(up); }
+            return false;
+
+        case VIM_WINDOW_MOVE_DOWN:
+            if (record->event.pressed) { CREATE_MOVE(down); }
+            return false;
+
+        case VIM_WINDOW_CREATE:
+            if (record->event.pressed) {
+                vim_window_create(VIM_CREATE_ON);
+            } else {
+                vim_window_create(VIM_CREATE_OFF);
+            }
+            return false;
+		case VIM_TOGGLE:
+            if (record->event.pressed) { toggle_vim_mode(); }
+			return false;
+    }
+ */
+
 /* Allow for togging of vim mode manually */
 static inline void toggle_vim_mode(void) {
 	app_state = (app_state == STATE_VIM) ? STATE_NOT_VIM : STATE_VIM;
